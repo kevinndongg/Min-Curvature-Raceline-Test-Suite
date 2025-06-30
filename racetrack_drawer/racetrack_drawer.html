@@ -14,19 +14,22 @@
         </div>
     </header>
 
-    <div id="canvas-wrapper">
-        <canvas id="canvas-wrapper" width="1000" height="600"></canvas>
+    <div id="canvas-and-instructions">
+        <canvas></canvas>
+        <div id="instruction-box">
+            <b>
+                Left click to add <br> <span style="color:blue">blue (left)</span> cones<br>
+                <br> Right click to add <br> <span style="color:goldenrod">yellow (right)</span> cones
+            </b>
+        </div>
     </div>
 
-    <p>
-        Left click to add <span style="color:blue">blue (left)</span> cones.<br>
-        Right click to add <span style="color:goldenrod">yellow (right)</span> cones.
-    </p>
-
     <div id="controls">
-        <button>Clear Blue</button>
-        <button>Clear Yellow</button>
-        <button>Download Cones (CSV)</button>
+        <button class="button">Clear Last Blue</button>
+        <button class="button">Clear Last Yellow</button>
+        <button class="button">Clear All Blue</button>
+        <button class="button">Clear All Yellow</button>
+        <button class="button">Download Cones</button>
     </div>
 </body>
 </html>

@@ -2,10 +2,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px 20px;
-    gap: 10px;
     background-color: darkred;
-    height: 60px;
+    height: 10vh;
     color: black;
     position: fixed;
     top: 0;
@@ -15,32 +13,56 @@
 .logo-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 3vw;
 }
 .logo {
-    height: 40px;
+    height: 7vh;
     width: auto;
 }
 .title {
     text-align: center;
     font-family: 'Lucida Sans', sans-serif;
-    font-size: 40px;
+    font-size: 7vh;
     color: white;
 }
-#canvas-wrapper {
-    padding-top: 80px;
+#canvas-and-instructions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 12vh;
+    gap: 20px;
+}
+#instruction-box {
+    border: 3px solid;
+    padding: 5px;
 }
 canvas {
-    display: block;
-    margin: 0 auto;
-    border: 10px solid #000;
+    width: 75vw;
+    height: auto;
+    border: 5px solid #000;
     cursor: crosshair;
 }
-p {
+b {
     text-align: center;
     font-family: 'Lucida Sans', sans-serif;
 }
 #controls {
-    margin-top: 10px;
+    margin-top: 6vh;
+    padding-left: 4vw;
+}
+.button {
+    background-color: darkred;
+    color: white;
     text-align: center;
+    font-family: 'Lucida Sans', sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    border-width: 3px;
+    border-radius: 12px;
+    padding: 1vh 2vh;
+    width: 15vw;
+    cursor: pointer;
+}
+.button:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.24);
 }
