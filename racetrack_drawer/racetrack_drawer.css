@@ -1,0 +1,46 @@
+.top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 10px;
+    background-color: darkred;
+    height: 60px;
+    color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+.logo-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo {
+    height: 40px;
+    width: auto;
+}
+.title {
+    text-align: center;
+    font-family: 'Lucida Sans', sans-serif;
+    font-size: 40px;
+    color: white;
+}
+#canvas-wrapper {
+    padding-top: 80px;
+}
+canvas {
+    display: block;
+    margin: 0 auto;
+    border: 10px solid #000;
+    cursor: crosshair;
+}
+p {
+    text-align: center;
+    font-family: 'Lucida Sans', sans-serif;
+}
+#controls {
+    margin-top: 10px;
+    text-align: center;
+}
