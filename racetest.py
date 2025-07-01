@@ -43,7 +43,7 @@ def find_midline(left_x, left_y, right_x, right_y, num_midpoints=None):
     return mid_x, mid_y
 
 if __name__ == "__main__":
-    df = pd.read_csv('./tracks/ellipse_track.csv')
+    df = pd.read_csv('./tracks/test_track.csv')
 
     left_df = df[df['type'] == 'left']
     right_df = df[df['type'] == 'right']

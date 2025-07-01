@@ -10,7 +10,7 @@
     left: 0;
     right: 0;
 }
-.logo-title {
+.title-logo {
     display: flex;
     align-items: center;
     gap: 3vw;
