@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+INPUT_FILE_NAME = "test_track.csv" # Modify this to be your track!
+
 def find_midline(left_x, left_y, right_x, right_y, num_midpoints=None):
     """
     Given left and right boundary points, returns midline points by averaging.
@@ -43,7 +45,7 @@ def find_midline(left_x, left_y, right_x, right_y, num_midpoints=None):
     return mid_x, mid_y
 
 if __name__ == "__main__":
-    df = pd.read_csv('./tracks/test_track.csv')
+    df = pd.read_csv('./tracks/' + INPUT_FILE_NAME)
 
     left_df = df[df['type'] == 'left']
     right_df = df[df['type'] == 'right']
