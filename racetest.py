@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
-from scipy.interpolate import interp1d 
+from scipy.interpolate import interp1d, splprep, splev
 
 INPUT_FILE_NAME = "test_track.csv" # Modify this to be your track!
 
@@ -40,7 +40,7 @@ def resample_equal_distance(x, y, num_points=100):
     y_new = fy(target_arc)
     return x_new, y_new
 
-def compute_midline(left_x, left_y, right_x, right_y, num_points=100):
+def compute_midline_near_neighbor(left_x, left_y, right_x, right_y, num_points=100):
     """
     Compute equally spaced midline points given left and right cones.
     """
@@ -68,10 +68,28 @@ def compute_midline(left_x, left_y, right_x, right_y, num_points=100):
     order = order_path(midline)
     midline = midline[order]
 
-    # Resample to equally spaced points
-    mid_x, mid_y = resample_equal_distance(midline[:,0], midline[:,1], num_points)
+    return midline[:, 0], midline[:,1]
 
-    return mid_x, mid_y
+def fit_b_spline(x, y):
+    # Fit B-spline (s=0 → exact fit, per=False → open curve)
+    tck, u = splprep([x, y], s=3, per=1)
+
+    # Sample spline
+    u_new = np.linspace(0, 1, 400)     # dense sampling
+    x_new, y_new = splev(u_new, tck)
+
+    return x_new, y_new
+
+def remove_duplicates_preserve_order(x, y):
+    seen = set()
+    new_x = []
+    new_y = []
+    for xi, yi in zip(x, y):
+        if (xi, yi) not in seen:
+            seen.add((xi, yi))
+            new_x.append(xi)
+            new_y.append(yi)
+    return np.array(new_x), np.array(new_y)
 
 if __name__ == "__main__":
     df = pd.read_csv('./tracks/' + INPUT_FILE_NAME)
@@ -84,11 +102,23 @@ if __name__ == "__main__":
     right_x = right_df['x'].to_numpy()
     right_y = right_df['y'].to_numpy()
 
-    mid_x, mid_y = compute_midline(left_x, left_y, right_x, right_y)
+    mid_x, mid_y = compute_midline_near_neighbor(left_x, left_y, right_x, right_y)
+    mid_eq_dist_x, mid_eq_dist_y = resample_equal_distance(mid_x, mid_y, 100)
+
+    print(len(mid_x), len(mid_y))
+    print(type(mid_x), type(mid_y))
+    print(mid_x.shape, mid_y.shape)
+    print(len(np.unique(mid_x)), len(np.unique(mid_y)))
+
+    no_dupes_x, no_dupes_y = remove_duplicates_preserve_order(mid_x, mid_y);
+
+    x_spline, y_spline = fit_b_spline(no_dupes_x, no_dupes_y)
     
     plt.figure(figsize=(10,6))
     plt.plot(left_x, left_y, color='blue', marker='o')
     plt.plot(right_x, right_y, color='gold', marker='o')
     plt.plot(mid_x, mid_y, color='green', marker='x')
+    plt.plot(x_spline, y_spline, '-', color='purple', label='B-spline')  # spline
+    # plt.plot(mid_eq_dist_x, mid_eq_dist_y, color='pink', marker = '*')
     plt.grid(True)
     plt.show()
