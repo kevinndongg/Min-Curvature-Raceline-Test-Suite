@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
 from scipy.interpolate import interp1d, splprep, splev
+from scipy.integrate import cumulative_trapezoid
 
 INPUT_FILE_NAME = "test_track.csv" # Modify this to be your track!
 
@@ -91,34 +92,6 @@ def remove_duplicates_preserve_order(x, y):
             new_y.append(yi)
     return np.array(new_x), np.array(new_y)
 
-from scipy.integrate import cumulative_trapezoid
-from scipy.interpolate import interp1d
-
-def sample_spline_constant_distance(tck, num_samples=1000, spacing=3.0):
-    """
-    Sample B-spline at roughly constant `spacing` distance (e.g., 3 m apart).
-    """
-    # Dense parameter sampling
-    t_dense = np.linspace(0, 1, num_samples)
-    x_dense, y_dense = splev(t_dense, tck)
-    dx, dy = splev(t_dense, tck, der=1)
-    
-    # Compute incremental arc length
-    ds = np.sqrt(dx**2 + dy**2)
-    arc_length = cumulative_trapezoid(ds, t_dense, initial=0)
-    total_length = arc_length[-1]
-    
-    # Target arc-length positions every `spacing` meters
-    num_waypoints = int(total_length // spacing)
-    target_arc = np.linspace(0, num_waypoints * spacing, num_waypoints + 1)
-
-    # Interpolate to get corresponding t_i values
-    f_t = interp1d(arc_length, t_dense)
-    t_samples = f_t(target_arc)
-
-    # Evaluate spline at sampled t_i
-    x_samples, y_samples = splev(t_samples, tck)
-    return x_samples, y_samples, total_length
 
 def sample_spline_constant_distance_with_curvature(tck, num_samples=1000, spacing=3.0):
     """
@@ -162,28 +135,24 @@ if __name__ == "__main__":
     right_y = right_df['y'].to_numpy()
 
     mid_x, mid_y = compute_midline_near_neighbor(left_x, left_y, right_x, right_y)
-    mid_eq_dist_x, mid_eq_dist_y = resample_equal_distance(mid_x, mid_y, 100)
+    # mid_eq_dist_x, mid_eq_dist_y = resample_equal_distance(mid_x, mid_y, 100)
 
-    print(len(mid_x), len(mid_y))
-    print(type(mid_x), type(mid_y))
-    print(mid_x.shape, mid_y.shape)
-    print(len(np.unique(mid_x)), len(np.unique(mid_y)))
+    mid_x, mid_y = remove_duplicates_preserve_order(mid_x, mid_y);
 
-    no_dupes_x, no_dupes_y = remove_duplicates_preserve_order(mid_x, mid_y);
-
-    x_spline, y_spline, tck = fit_b_spline(no_dupes_x, no_dupes_y)
+    mid_x_spline, mid_y_spline, tck = fit_b_spline(mid_x, mid_y)
+    mid_x_ctrl, mid_y_ctrl = tck[1] #save the control points
 
     x_const, y_const, curvature, total_length = sample_spline_constant_distance_with_curvature(tck, spacing=3.0)
 
     print(f"Total track length ≈ {total_length:.2f} m")
     print(f"Number of 3m waypoints: {len(x_const)}")
-    
+
     plt.figure(figsize=(10,6))
     plt.scatter(x_const, y_const, c=curvature, cmap='viridis', s=25)
     plt.plot(left_x, left_y, color='blue', marker='o')
     plt.plot(right_x, right_y, color='gold', marker='o')
-    # plt.plot(mid_x, mid_y, color='green', marker='x')
-    plt.plot(x_spline, y_spline, '-', color='purple', label='B-spline')  # spline
+    plt.plot(mid_x_ctrl, mid_y_ctrl, 'x--', label='control points (B-spline basis)') #plot the control points
+    plt.plot(mid_x_spline, mid_y_spline, '-', color='purple', label='B-spline')  # spline
     # plt.plot(mid_eq_dist_x, mid_eq_dist_y, color='pink', marker = '*')
     # plt.plot(x_const, y_const, 'r.-', label='3m spaced waypoints')
     plt.grid(True)
