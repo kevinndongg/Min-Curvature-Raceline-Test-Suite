@@ -8,10 +8,10 @@ from scipy.integrate import cumulative_trapezoid
 import cvxpy as cp
 
 INPUT_FILE_NAME = "silverstone.csv"  # adjust path if needed
-SPACING = 3.0    # meters between samples
+SPACING = 1.0    # meters between samples
 DENSE_SAMPLES = 2000  # for arc-length estimate
 SPLINE_SAMPLES_PLOT = 400
-SAFETY_MARGIN = 1.0  # meters you want to stay away from cones
+SAFETY_MARGIN = 0.5  # meters you want to stay away from cones
 
 # ----- helper functions from your snippet (slightly adapted) -----
 def order_path(points):
@@ -196,7 +196,7 @@ def optimize_raceline(tck, left_x, left_y, right_x, right_y,
 
     # Build QP in cvxpy
     z = cp.Variable(2 * S)
-    objective = 0.5 * cp.quad_form(z, H)
+    objective = 0.5 * cp.quad_form(z, cp.psd_wrap(H))
     constraints = [R @ z <= ub, R @ z >= lb]
     # Optionally limit how far control points can move from original (trust-region)
     # enforce |z - z0| <= delta per-control (small)
@@ -260,15 +260,25 @@ if __name__ == "__main__":
     # run optimization
     res = optimize_raceline(tck, left_x, left_y, right_x, right_y, spacing=SPACING, verbose=True)
 
+    # create CSV file
+    output_df = pd.DataFrame({
+        "x": res["x_opt_samples"],
+        "y": res["y_opt_samples"],
+        "z": 0
+    })
+    output_csv_path = './tracks/optimized_raceline.csv'
+    output_df.to_csv(output_csv_path, index=False)
+    print(f"Optimized raceline saved to: {output_csv_path}")
+
     # plot
     plt.figure(figsize=(12, 8))
     # cones
     plt.scatter(left_x, left_y, c='blue', s=10, label='left cones')
     plt.scatter(right_x, right_y, c='gold', s=10, label='right cones')
     # midline and its control points
-    cx0 = np.array(tck[1][0]); cy0 = np.array(tck[1][1])
-    plt.plot(mid_x_spline, mid_y_spline, color='purple', label='initial midline spline')
-    plt.plot(cx0, cy0, 'x--', color='purple', alpha=0.6, label='original ctrl pts')
+    # cx0 = np.array(tck[1][0]); cy0 = np.array(tck[1][1])
+    # plt.plot(mid_x_spline, mid_y_spline, color='purple', label='initial midline spline')
+    # plt.plot(cx0, cy0, 'x--', color='purple', alpha=0.6, label='original ctrl pts')
 
     # optimized spline (dense)
     u_plot = np.linspace(0, 1, 600)
