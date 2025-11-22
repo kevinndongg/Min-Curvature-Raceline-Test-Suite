@@ -266,7 +266,7 @@ if __name__ == "__main__":
         "y": res["y_opt_samples"],
         "z": 0
     })
-    output_csv_path = './tracks/optimized_raceline.csv'
+    output_csv_path = './Raceline_CarMaker_Tracks/optimized_raceline.csv'
     output_df.to_csv(output_csv_path, index=False)
     print(f"Optimized raceline saved to: {output_csv_path}")
 
